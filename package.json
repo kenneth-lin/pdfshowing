@@ -1,0 +1,24 @@
+{
+  "name": "pdfthumbnails",
+  "version": "1.0.0",
+  "description": "A small script to parse html files and generate a source image  for `img` elements \r with a `data-pdf-thumbnail-file` attribute linking to a pdf file.  \r The image is a view of the first page of the pdf. The script relies on the [pdf.js](https://github.com/mozilla/pdf.js) library.",
+  "main": "pdfThumbnails.js",
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scandel/pdfThumbnails.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scandel/pdfThumbnails/issues"
+  },
+  "homepage": "https://github.com/scandel/pdfThumbnails#readme"
+}
