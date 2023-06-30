@@ -105,7 +105,7 @@ if __name__ == '__main__':
     else:
         for root, dirs, files in os.walk(folder):
             for fold in dirs:
-                fold = os.path.join('thumbnail',fold)
+                fold = os.path.join(root, fold).replace(folder,'thumbnail')
                 if not os.path.exists(fold):
                     os.makedirs(fold)
             for file in files:
