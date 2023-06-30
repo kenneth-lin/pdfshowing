@@ -24,7 +24,7 @@ Array.prototype.removeByValue = function (val) {
     return this;
 }
 
-function readDirSync(path){
+function readDirSync(path,suffix){    
     var ret = {dir:[],files:[]}
 	var pa = fs.readdirSync(path);
 	pa.forEach(function(ele,index){
@@ -32,7 +32,7 @@ function readDirSync(path){
 		if(info.isDirectory()){
             ret['dir'].push(ele)
 		}else{
-            if(ele.indexOf('.pdf') > 0){
+            if(ele.indexOf(suffix) > 0){
                 ret['files'].push(ele)
             }
 		}	
@@ -40,53 +40,104 @@ function readDirSync(path){
     return ret
 }
 
-app.get('/', (req, res) => {
-    var at = req.query.at
-    if(!at) at = ''
-    console.log(at)
-    console.log(mainPath)
-    var newpath = path.join(mainPath,at)
-    console.log(newpath)
-    if(!fs.existsSync(newpath)){
-        res.send('error')
-        return
-    }
-
-    var pdflist = readDirSync(newpath)
-    pdflist['files'].forEach(function(v,i){
-        var one = {pdf:'',thumb:'',size:''}
-        var thumbnail =  path.join('thumbnail',at, pdflist['files'][i])
-        thumbnail = thumbnail.replace('.pdf','.png')
+function getShowFileList(newpath, at , suffix){
+    suffix = '.'+suffix
+    var showFileList = readDirSync(newpath,suffix)
+    showFileList['files'].forEach(function(v,i){
+        var one = {file:'',thumb:'',size:''}
+        var thumbnail =  path.join('thumbnail',at, showFileList['files'][i])
+        thumbnail = thumbnail.replace(suffix,'.png')
 
         if(fs.existsSync(thumbnail)) {
-            one.thumb = path.join(at, pdflist['files'][i]).replace('.pdf','.png')
+            one.thumb = path.join(at, showFileList['files'][i]).replace(suffix,'.png')
         }
-        one.pdf = path.join(at,pdflist['files'][i])
+        one.file = path.join(at,showFileList['files'][i])
         one.size = !!thumbnailInfo[path.join('thumbnail',one.thumb)] && thumbnailInfo[path.join('thumbnail',one.thumb)]['size'] || "unknown"
         
-        //pdflist['files'][i] = path.join(at,pdflist['files'][i])
-        pdflist['files'][i] = one
+        //showFileList['files'][i] = path.join(at,showFileList['files'][i])
+        showFileList['files'][i] = one
     })
 
     if(at == ''){
-        pdflist['dir'].removeByValue('public')
-        pdflist['dir'].removeByValue('.git')
-        pdflist['dir'].removeByValue('node_modules')
-        pdflist['dir'].removeByValue('views')
-        pdflist['dir'].removeByValue('thumbnail')
+        showFileList['dir'].removeByValue('public')
+        showFileList['dir'].removeByValue('.git')
+        showFileList['dir'].removeByValue('node_modules')
+        showFileList['dir'].removeByValue('views')
+        showFileList['dir'].removeByValue('thumbnail')
     }
-    pdflist['dir'].forEach(function(v,i){
-        pdflist['dir'][i] = at + '/' + pdflist['dir'][i]
+    showFileList['dir'].forEach(function(v,i){
+        showFileList['dir'][i] = at + '/' + showFileList['dir'][i]
     })
+    return showFileList
+}
+
+function getPrePath(at){
     var pre = ''
     if(!at && at.indexOf('\\') > 0){
         pre = at.substring(at.lastIndexOf('\\')+1,at.length - at.lastIndexOf('\\'))
     }
+    return pre
+}
 
+app.get('/', (req, res) => {
+    var at = req.query.at
+    if(!at) at = ''
+    var newpath = path.join(mainPath,at)
+    if(!fs.existsSync(newpath)){
+        res.send('error')
+        return
+    }
+    var type = 'pdf'
+    var showFileList = getShowFileList(newpath,at,type)
+    var pre = getPrePath(at)
     res.render('index', {
+        current: '/',
+        type: type,
         pre : pre, 
-        pdfdir: pdflist['dir'],
-        pdflist: pdflist['files'],
+        filedir: showFileList['dir'],
+        showFileList: showFileList['files'],
+    })
+})
+
+var typeList = ['mp4','pdf']
+
+app.get('/'+typeList[0], (req, res) => {
+    var at = req.query.at
+    if(!at) at = ''
+    var newpath = path.join(mainPath,at)
+    if(!fs.existsSync(newpath)){
+        res.send('error')
+        return
+    }
+    var type = typeList[0]
+    var showFileList = getShowFileList(newpath,at,type)
+    var pre = getPrePath(at)
+    res.render('index', {
+        current: '/'+ type,
+        type: type,
+        pre : pre, 
+        filedir: showFileList['dir'],
+        showFileList: showFileList['files'],
+    })
+})
+
+app.get('/'+typeList[1], (req, res) => {
+    var at = req.query.at
+    if(!at) at = ''
+    var newpath = path.join(mainPath,at)
+    if(!fs.existsSync(newpath)){
+        res.send('error')
+        return
+    }
+    var type = typeList[1]
+    var showFileList = getShowFileList(newpath,at,type)
+    var pre = getPrePath(at)
+    res.render('index', {
+        current: '/'+ type,
+        type: type,
+        pre : pre, 
+        filedir: showFileList['dir'],
+        showFileList: showFileList['files'],
     })
 })
 

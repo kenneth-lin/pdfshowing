@@ -3,17 +3,16 @@
   "version": "1.0.0",
   "description": "A small script to parse html files and generate a source image  for `img` elements \r with a `data-pdf-thumbnail-file` attribute linking to a pdf file.  \r The image is a view of the first page of the pdf. The script relies on the [pdf.js](https://github.com/mozilla/pdf.js) library.",
   "main": "pdfThumbnails.js",
-  "workpath": "",
+  "workpath": "E:/ALLWork/NowMyDown/book2/bao",
   "dependencies": {
     "ejs": "^3.1.9",
-    "express": "^4.18.2",
-    "pdfjs": "^2.5.0",
-    "pdfjs-dist": "^3.7.107",
-    "pspdfkit": "^2023.3.2"
+    "express": "^4.18.2"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "thumbnail": "python thumb.py"
   },
   "repository": {
     "type": "git",

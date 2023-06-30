@@ -69,10 +69,10 @@ def createThumbnailJson(fileList):
     with open("thumbnail.json", 'w', encoding="utf-8") as f:
         data = {}
         for one in fileList:
-            outcome = {'pdf':'','thumb':'','size':''}
-            size = "%.2f"%(os.path.getsize(one['pdf'])/1000000)
+            outcome = {'file':'','thumb':'','size':''}
+            size = "%.2f"%(os.path.getsize(one['file'])/1000000)
             outcome['size'] = str(size) + "MB"
-            outcome['pdf'] = one['pdf']
+            outcome['file'] = one['file']
             outcome['thumb'] = one['thumb']
             data[outcome['thumb']] = outcome
             if count%100 == 0:
@@ -84,10 +84,29 @@ def createThumbnailByFileList(fileList):
     print(str(len(fileList)) + ' files will be created!')
     count = 1           
     for one in fileList:        
-        pdf_thumbnail(one['pdf'], one['thumb'], num_cols=1, unit_width=320, padding=(0,0))
+        pdf_thumbnail(one['file'], one['thumb'], num_cols=1, unit_width=160, padding=(0,0))
         if count%20 == 0:
             print(str(count) + ' files are created!')
         count = count+1
+
+def getFileList(folder,suffix):
+    fileList = []
+    if folder == '' or  not os.path.exists(folder):
+        print("Please check the folder.")
+    else:
+        for root, dirs, files in os.walk(folder):
+            for fold in dirs:
+                fold = os.path.join(root, fold).replace(folder,'thumbnail')
+                if not os.path.exists(fold):
+                    os.makedirs(fold)
+            for file in files:
+                pathfile = os.path.join(root, file)
+                if pathfile.endswith((suffix.lower(), suffix.upper())):
+                    one = {'file':'','thumb':''}
+                    one['file'] = pathfile
+                    one['thumb'] = pathfile.replace(folder,r'thumbnail').replace('.pdf','.png')
+                    fileList.append(one)
+    return fileList    
 
     
 
@@ -100,24 +119,9 @@ if __name__ == '__main__':
         d = json.load(f)
         folder = d['workpath']
     
-    if folder == '' or  not os.path.exists(folder):
-        print("Please check the folder.")
-    else:
-        for root, dirs, files in os.walk(folder):
-            for fold in dirs:
-                fold = os.path.join(root, fold).replace(folder,'thumbnail')
-                if not os.path.exists(fold):
-                    os.makedirs(fold)
-            for file in files:
-                pathfile = os.path.join(root, file)
-                if pathfile.endswith(('pdf', 'PDF')):
-                    one = {'pdf':'','thumb':''}
-                    one['pdf'] = pathfile
-                    one['thumb'] = pathfile.replace(folder,r'thumbnail').replace('.pdf','.png')
-                    fileList.append(one)        
-
+    fileList = getFileList(folder,'pdf')   
+    if len(fileList) > 0:
         createThumbnailJson(fileList)
-
         fileListNotExist = []
         for one in fileList:
             if not os.path.exists(one['thumb']):
@@ -125,4 +129,4 @@ if __name__ == '__main__':
         
         createThumbnailByFileList(fileListNotExist)
 
-        print('Done!')
+    print('Done!')
