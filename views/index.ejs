@@ -52,9 +52,14 @@
             <div class="row">
         <%}%>
         <div class=<%="col-sm-"+parseInt(12/presize)%>
-            <h4><%=pdflist[i].substr(pdflist[i].lastIndexOf('\\') + 1,30)%></h4>
-            <a href=<%=encodeURI(pdflist[i])%> target=_blank>
-                <img class="img-responsive" data-pdf-thumbnail-file=<%=encodeURI(pdflist[i])%> src="pdf.png">
+            <h4><%=pdflist[i]['pdf'].substr(pdflist[i]['pdf'].lastIndexOf('\\') + 1,30)%></h4>
+            <h4>size: <%=pdflist[i]['size']%></h4>
+            <a href=<%=encodeURI(pdflist[i]['pdf'])%> target=_blank>
+                <%if(pdflist[i]['thumb'] != ''){%>
+                    <img class="img-responsive" src=<%=encodeURI(pdflist[i]['thumb'])%>>
+                <%}else{%>
+                    <img class="img-responsive" data-pdf-thumbnail-file=<%=encodeURI(pdflist[i]['pdf'])%> src="pdf.png">
+                <%}%>
             </a>
         </div>
         <%if(i%presize==presize-1 || i == pdflist.length-1){%>

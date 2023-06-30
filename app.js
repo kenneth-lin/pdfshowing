@@ -2,11 +2,17 @@ const express = require('express')
 const app = express()
 const fs = require('fs')
 const path = require('path')
+const packageData = require("./package.json")
+const thumbnailInfo = require('./thumbnail.json')
 
 app.set('view engine', 'ejs')
-var mainPath = "E:/ALLWork/NowMyDown/book2"
+var mainPath = __dirname
+if(!!packageData.workpath){
+    mainPath = packageData.workpath
+}
 app.use(express.static(mainPath))
 app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'thumbnail')))
 
 Array.prototype.removeByValue = function (val) {
     for (var i = 0; i < this.length; i++) {
@@ -16,8 +22,7 @@ Array.prototype.removeByValue = function (val) {
       }
     }
     return this;
-  }
-  
+}
 
 function readDirSync(path){
     var ret = {dir:[],files:[]}
@@ -35,7 +40,6 @@ function readDirSync(path){
     return ret
 }
 
-// get用户显示数据
 app.get('/', (req, res) => {
     var at = req.query.at
     if(!at) at = ''
@@ -50,13 +54,26 @@ app.get('/', (req, res) => {
 
     var pdflist = readDirSync(newpath)
     pdflist['files'].forEach(function(v,i){
-        pdflist['files'][i] = path.join(at,pdflist['files'][i])
+        var one = {pdf:'',thumb:'',size:''}
+        var thumbnail =  path.join('thumbnail',at, pdflist['files'][i])
+        thumbnail = thumbnail.replace('.pdf','.png')
+
+        if(fs.existsSync(thumbnail)) {
+            one.thumb = path.join(at, pdflist['files'][i]).replace('.pdf','.png')
+        }
+        one.pdf = path.join(at,pdflist['files'][i])
+        one.size = !!thumbnailInfo[path.join('thumbnail',one.thumb)] && thumbnailInfo[path.join('thumbnail',one.thumb)]['size'] || "unknown"
+        
+        //pdflist['files'][i] = path.join(at,pdflist['files'][i])
+        pdflist['files'][i] = one
     })
+
     if(at == ''){
         pdflist['dir'].removeByValue('public')
         pdflist['dir'].removeByValue('.git')
         pdflist['dir'].removeByValue('node_modules')
         pdflist['dir'].removeByValue('views')
+        pdflist['dir'].removeByValue('thumbnail')
     }
     pdflist['dir'].forEach(function(v,i){
         pdflist['dir'][i] = at + '/' + pdflist['dir'][i]
